@@ -1,9 +1,11 @@
-<!--
-SPDX-FileCopyrightText: Opinsys Oy <dev@opinsys.fi>
-SPDX-License-Identifier: CC0-1.0
--->
-
 # External Portal changelog
+## [2.0.0] - 2026-02-17
+### Changed
+- Updated to latest Nextcloud app template.
+- Require Node.js 20+.
+- Supported Nextcloud versions: 31-32.
+- Added translations for finnish and german.
+
 ## [1.3.2] - 2025-10-24
 ### Fixed
 - Shorten filenames in the js directory to fix issue 9.

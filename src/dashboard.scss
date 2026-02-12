@@ -1,0 +1,12 @@
+.icon-externalportal {
+  background-image: url("../img/externalportal-dark.svg");
+  filter: var(--background-invert-if-dark);
+}
+
+body.theme--dark .icon-externalportal {
+  background-image: url("../img/externalportal.svg");
+}
+
+.panel.externalportal--extra-wide {
+  width: 400px !important;
+}

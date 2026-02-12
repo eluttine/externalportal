@@ -1,150 +1,159 @@
-<!--
-Nextcloud - External Portal Dashboard
-@author Tuomas Nurmi
-@copyright 2022 Opinsys Oy <dev@opinsys.fi>
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-License as published by the Free Software Foundation; either
-version 3 of the License, or any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-You should have received a copy of the GNU Affero General Public
-License along with this library. If not, see <http://www.gnu.org/licenses/>.
-
-The Welcome widget ( https://github.com/julien-nc/welcome ) has been a very useful
-guiding source for basic dashboard widget and configuration functionality.
-
-SPDX-FileCopyrightText: Opinsys Oy <dev@opinsys.fi>
-SPDX-License-Identifier: AGPL-3.0-or-later
--->
-
 <template>
-	<div id="externalportal_prefs" class="section">
-		<div class="settings">
-			<h2>
-				External portal settings
-			</h2>
-			<div class="setting">
-				<label for="externaportal-widget-title">
-					<span class="icon icon-file" />
-					Widget title
-				</label>
-				<input id="externaportal-widget-title"
-					v-model="state.widgetTitle"
-					type="text"
-					:class="{ 'icon-loading-small': saving }"
-					:placeholder="('External portal')">
-			</div>
-			<div class="setting">
-				<label for="extraWide">Make the widget wider when there are many links</label>
-				<input v-model="state.extraWide" type="checkbox" name="extraWide">
-			</div>
-			<div class="setting">
-				<label for="maxSize">Limit maximum icon size to to avoid over-stretching 32x32 pixmap icons</label>
-				<input v-model="state.maxSize" type="checkbox" name="maxSize">
-			</div>
-			<div class="setting">
-				<label for="showFiles">Show Files link for everyone</label>
-				<input v-model="state.showFiles" type="checkbox" name="showFiles">
-			</div>
-			<div class="settings">
-				<label for="iconColorMode">Icon Colors</label>
-				<select v-model="state.iconColorMode" name="iconColorMode">
-					<option value="THEMING">
-						Use theme color
-					</option>
-					<option value="PRIMARY">
-						Use text color
-					</option>
-					<option value="DEFAULT">
-						Use icons as-is
-					</option>
-					<option value="CUSTOM">
-						Use custom color
-					</option>
-				</select>
-			</div>
-			<div v-if="state.iconColorMode === 'CUSTOM'" class="setting">
-				<ColorInputField label="Custom icon color"
-					:value.sync="state.customIconColor" />
-			</div>
-			<div class="setting">
-				<button color="primary" @click="saveSettings">
-					Save
-				</button>
-			</div>
-		</div>
-		<div class="right-pane">
-			<h2>Preview</h2>
-			<div class="panel-wrapper">
-				<div class="panel">
-					<div class="panel--header">
-						<h2>
-							<div aria-labelledby="panel--header--icon--description"
-								aria-hidden="true"
-								class="icon-externalportal"
-								role="img" />
-							{{ state.widgetTitle || "External Portal" }}
-						</h2>
-						<span id="panel--header--icon--description" class="hidden-visually">
-							{{ t('dashboard', '"{title} icon"', {title: state.widgetTitle || "External Portal"}) }}
-						</span>
+	<div id="externalportal_prefs">
+		<NcSettingsSection :name="t('externalportal', 'External portal settings')">
+			<div class="settings-layout">
+				<div class="settings-form">
+					<NcTextField id="externalportal-widget-title"
+						:model-value="state.widgetTitle"
+						:label="t('externalportal', 'Widget title')"
+						:placeholder="t('externalportal', 'External portal')"
+						:loading="saving && lastChanged === 'widgetTitle'"
+						:success="saved && lastChanged === 'widgetTitle'"
+						@update:model-value="updateField('widgetTitle', $event)" />
+					<NcCheckboxRadioSwitch :model-value="!!state.extraWide"
+						type="switch"
+						@update:model-value="updateField('extraWide', $event)">
+						{{ t('externalportal', 'Extra wide') }}
+					</NcCheckboxRadioSwitch>
+					<p class="setting-hint">
+						{{ t('externalportal', 'Expand the widget from 320px to 400px when there are more than 6 links') }}
+					</p>
+					<NcCheckboxRadioSwitch :model-value="!!state.maxSize"
+						type="switch"
+						@update:model-value="updateField('maxSize', $event)">
+						{{ t('externalportal', 'Limit icon size') }}
+					</NcCheckboxRadioSwitch>
+					<p class="setting-hint">
+						{{ t('externalportal', 'Limit each icon to 64x64px to prevent small pixmap icons from being stretched') }}
+					</p>
+					<NcCheckboxRadioSwitch :model-value="!!state.showFiles"
+						type="switch"
+						@update:model-value="updateField('showFiles', $event)">
+						{{ t('externalportal', 'Show Files link') }}
+					</NcCheckboxRadioSwitch>
+					<p class="setting-hint">
+						{{ t('externalportal', 'Add a shortcut to the Files app as the first item in the widget') }}
+					</p>
+					<NcSelect v-model="state.iconColorMode"
+						:options="iconColorOptions"
+						:reduce="option => option.id"
+						label="label"
+						:input-label="t('externalportal', 'Icon Colors')"
+						@option:selected="lastChanged = 'iconColorMode'" />
+					<div v-if="state.iconColorMode === 'CUSTOM'">
+						<ColorInputField v-model="state.customIconColor"
+							:label="t('externalportal', 'Custom icon color')" />
 					</div>
-					<div class="panel--content">
-						<Dashboard ref="dashboard" :title="state.widgetTitle" />
+				</div>
+				<div class="settings-preview">
+					<h3>
+						{{ t('externalportal', 'Preview') }}
+					</h3>
+					<div class="panel-wrapper">
+						<div class="panel">
+							<div class="panel--header">
+								<h2>
+									<div aria-labelledby="panel--header--icon--description"
+										aria-hidden="true"
+										class="icon-externalportal"
+										role="img" />
+									{{ state.widgetTitle || t('externalportal', 'External portal') }}
+								</h2>
+								<span id="panel--header--icon--description" class="hidden-visually">
+									{{ t('dashboard', '"{title} icon"', {title: state.widgetTitle || t('externalportal', 'External portal')}) }}
+								</span>
+							</div>
+							<div class="panel--content">
+								<Dashboard ref="dashboard" />
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</NcSettingsSection>
 	</div>
 </template>
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
+import { translate as t } from '@nextcloud/l10n'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
-import { showSuccess, showError } from '@nextcloud/dialogs'
+import { showError } from '@nextcloud/dialogs'
+import NcCheckboxRadioSwitch from '@nextcloud/vue/components/NcCheckboxRadioSwitch'
+import NcSelect from '@nextcloud/vue/components/NcSelect'
+import NcSettingsSection from '@nextcloud/vue/components/NcSettingsSection'
+import NcTextField from '@nextcloud/vue/components/NcTextField'
 import Dashboard from './Dashboard.vue'
 import ColorInputField from './ColorInputField.vue'
 
 export default {
 	name: 'AdminSettings',
 	components: {
+		NcCheckboxRadioSwitch,
+		NcSelect,
+		NcSettingsSection,
+		NcTextField,
 		Dashboard,
 		ColorInputField,
 	},
-	props: [],
 	data() {
 		return {
 			state: loadState('externalportal', 'admin-config'),
 			saving: false,
+			saved: false,
+			lastChanged: null,
+			iconColorOptions: [
+				{ id: 'THEMING', label: t('externalportal', 'Use theme color') },
+				{ id: 'PRIMARY', label: t('externalportal', 'Use text color') },
+				{ id: 'DEFAULT', label: t('externalportal', 'Use icons as-is') },
+				{ id: 'CUSTOM', label: t('externalportal', 'Use custom color') },
+			],
 		}
 	},
+	watch: {
+		state: {
+			deep: true,
+			handler() {
+				clearTimeout(this._saveTimeout)
+				this._saveTimeout = setTimeout(() => {
+					this.saveSettings()
+				}, 500)
+			},
+		},
+	},
 	methods: {
+		t,
+		updateField(field, value) {
+			this.lastChanged = field
+			this.state[field] = value
+		},
 		async saveSettings() {
 			this.saving = true
+			this.saved = false
 			const values = {
 				widgetTitle: this.state.widgetTitle,
-				maxSize: this.state.maxSize,
-				extraWide: this.state.extraWide,
-				showFiles: this.state.showFiles,
+				maxSize: this.state.maxSize ? '1' : '',
+				extraWide: this.state.extraWide ? '1' : '',
+				showFiles: this.state.showFiles ? '1' : '',
 				iconColorMode: this.state.iconColorMode,
 				customIconColor: this.state.customIconColor,
 			}
-			const req = {
-				values,
-			}
 			const url = generateUrl('/apps/externalportal/admin-config')
-			console.debug('"' + JSON.stringify(req) + '"')
 			try {
-				await axios.put(url, req)
+				await axios.put(url, { values })
+				this.saved = true
+				clearTimeout(this._savedTimeout)
+				this._savedTimeout = setTimeout(() => {
+					this.saved = false
+				}, 3000)
 			} catch (e) {
-				showError(t('externalportal', 'Failed to save external portal options') + `: ${e.response?.request?.responseText ?? ''}`)
-				console.debug(e)
+				showError(
+					t('externalportal', 'Failed to save external portal options')
+						+ `: ${e.response?.request?.responseText ?? ''}`,
+				)
+				console.error(e)
 			}
-			showSuccess(t('externalportal', 'External portal options saved'))
 			this.saving = false
 			await this.$refs.dashboard.reload()
 		},
@@ -153,21 +162,26 @@ export default {
 </script>
 
 <style scoped>
-#externalportal_prefs {
+.settings-layout {
 	display: flex;
-	flex-direction: row;
-	justify-content: space-evenly;
 	flex-wrap: wrap;
+	gap: 32px;
 }
 
-.settings {
-	display: flex;
-	flex-direction: column;
+.settings-form {
+	flex: 1;
+	min-width: 300px;
+}
+
+.settings-preview {
 	flex-shrink: 0;
 }
 
-.right-pane {
-	margin: 16px;
+.setting-hint {
+	margin-top: -4px;
+	margin-bottom: 8px;
+	color: var(--color-text-maxcontrast);
+	font-size: small;
 }
 
 .panel-wrapper {
@@ -181,13 +195,15 @@ export default {
 	background-color: var(--color-main-background-blur);
 	box-sizing: border-box;
 	backdrop-filter: var(--filter-background-blur);
-	-webkit-backdrop-filter: var(--filter-background-blur);
 	border-radius: var(--border-radius-large);
+}
+
+.panel.externalportal--extra-wide {
+	width: 400px;
 }
 
 .panel--header {
 	padding: 16px;
-	cursor: grab;
 }
 
 .panel--content {
@@ -203,9 +219,8 @@ export default {
 	background-size: 32px;
 	width: 32px;
 	height: 32px;
-	margin-right: 16px;
+	margin-inline-end: 16px;
 	background-position: center;
-	float: left;
+	float: inline-start;
 }
-
 </style>
