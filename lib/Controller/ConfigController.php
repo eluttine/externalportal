@@ -1,97 +1,64 @@
 <?php
-/**
- * @copyright Copyright (c) 2022 Opinsys Oy <dev@opinsys.fi>
- *
- * @author Tuomas Nurmi <tuomas.nurmi@opinsys.fi>
- *
- * @license GNU AGPL version 3 or any later version
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- *
- * SPDX-FileCopyrightText: Opinsys Oy <dev@opinsys.fi>
- * SPDX-License-Identifier: AGPL-3.0-or-later
- *
- */
+
+declare(strict_types=1);
 
 namespace OCA\ExternalPortal\Controller;
 
-use OCP\Files\IAppData;
-use OCP\AppFramework\Http\DataDisplayResponse;
-
-use OCP\IConfig;
-use OCP\IServerContainer;
-
-use OCP\AppFramework\Http;
-use OCP\AppFramework\Http\RedirectResponse;
-
-use OCP\Files\IRootFolder;
-use OCP\IUserManager;
-use OCP\Files\FileInfo;
-
-
-use OCP\IRequest;
-use OCP\AppFramework\Http\DataResponse;
-use OCP\AppFramework\Controller;
-
 use OCA\ExternalPortal\AppInfo\Application;
+use OCP\AppFramework\Controller;
+use OCP\AppFramework\Http\DataResponse;
+use OCP\IAppConfig;
+use OCP\IRequest;
 
-class ConfigController extends Controller
-{
-    private $config;
-    private $dbtype;
+/** @psalm-suppress UnusedClass */
+class ConfigController extends Controller {
+	private IAppConfig $appConfig;
 
-    public function __construct(
-        $AppName,
-        IRequest $request,
-        IServerContainer $serverContainer,
-        IConfig $config,
-        IAppData $appData,
-        ?string $userId
-    ) {
-        parent::__construct($AppName, $request);
-        $this->userId = $userId;
-        $this->appData = $appData;
-        $this->serverContainer = $serverContainer;
-        $this->config = $config;
-    }
+	public function __construct(
+		string $AppName,
+		IRequest $request,
+		IAppConfig $appConfig,
+	) {
+		parent::__construct($AppName, $request);
+		$this->appConfig = $appConfig;
+	}
 
-    public function setAdminConfig(array $values): DataResponse
-    {
-        foreach ($values as $key => $value) {
-            $this->config->setAppValue(Application::APP_ID, $key, $value);
-        }
-        return new DataResponse(1);
-    }
+	private const ALLOWED_KEYS = [
+		'widgetTitle',
+		'extraWide',
+		'maxSize',
+		'showFiles',
+		'iconColorMode',
+		'customIconColor',
+	];
 
-    /**
-     * @NoAdminRequired
-     */
-    public function getConfig(): DataResponse
-    {
+	/**
+	 * @param array<string, string> $values
+	 */
+	public function setAdminConfig(array $values): DataResponse {
+		foreach ($values as $key => $value) {
+			if (in_array($key, self::ALLOWED_KEYS, true)) {
+				$this->appConfig->setValueString(Application::APP_ID, $key, $value);
+			}
+		}
+		return new DataResponse(1);
+	}
 
-        $extraWide = $this->config->getAppValue(Application::APP_ID, 'extraWide', false);
-        $maxSize = $this->config->getAppValue(Application::APP_ID, 'maxSize', false);
-        $showFiles = $this->config->getAppValue(Application::APP_ID, 'showFiles', false);
-        $iconColorMode = $this->config->getAppValue(Application::APP_ID, 'iconColorMode', "DEFAULT");
-        $customIconColor = $this->config->getAppValue(Application::APP_ID, 'customIconColor', '');
-        return new DataResponse([
-            'extraWide' => $extraWide,
-            'showFiles' => $showFiles,
-            'maxSize' => $maxSize,
-            'iconColorMode' => $iconColorMode,
-            'customIconColor' => $customIconColor]);
-    }
-
+	/**
+	 * @NoAdminRequired
+	 */
+	public function getConfig(): DataResponse {
+		$extraWide = $this->appConfig->getValueString(Application::APP_ID, 'extraWide', '');
+		$maxSize = $this->appConfig->getValueString(Application::APP_ID, 'maxSize', '');
+		$showFiles = $this->appConfig->getValueString(Application::APP_ID, 'showFiles', '');
+		$iconColorMode = $this->appConfig->getValueString(Application::APP_ID, 'iconColorMode', 'DEFAULT');
+		$customIconColor = $this->appConfig->getValueString(Application::APP_ID, 'customIconColor', '');
+		return new DataResponse([
+			'extraWide' => $extraWide,
+			'showFiles' => $showFiles,
+			'maxSize' => $maxSize,
+			'iconColorMode' => $iconColorMode,
+			'customIconColor' => $customIconColor,
+		]);
+	}
 }

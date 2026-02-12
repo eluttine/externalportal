@@ -1,0 +1,25 @@
+{ "translations": {
+    "External portal" : "Ulkoiset sivustot piensovellus",
+    "External Portal" : "Ulkoinen sivustot piensovellus",
+    "Dashboard Portal Widget" : "Koontinäytön ulkoiset sivustot piensovellus",
+    "A dashboard widget that displays the content from the External sites app on Dashboard." : "Koontinäytön pienesovellus, joka näyttää ulkoiset sivustot -sovelluksen sisällön koontinäytöllä.",
+    "External portal settings" : "Ulkoiset sivustot piensovelluksen asetukset",
+    "Widget title" : "Piensovelluksen otsikko",
+    "Extra wide" : "Erittäin leveä",
+    "Expand the widget from 320px to 400px when there are more than 6 links" : "Laajenna piensovellus 320 pikselistä 400 pikseliin, kun linkkejä on enemmän kuin 6",
+    "Limit icon size" : "Rajoita kuvakkeen kokoa",
+    "Limit each icon to 64x64px to prevent small pixmap icons from being stretched" : "Rajoita kunkin kuvakkeen koko 64x64 pikseliin, jotta pienet pikselikuvakkeet eivät venyisi",
+    "Show Files link" : "Näytä Tiedostot-linkki",
+    "Add a shortcut to the Files app as the first item in the widget" : "Lisää pikakuvake tiedostot-sovellukseen piensovelluksen ensimmäiseksi kohteeksi",
+    "Icon Colors" : "Kuvakkeiden värit",
+    "Custom icon color" : "Mukautettu kuvakeväri",
+    "Preview" : "Esikatselu",
+    "\"{title} icon\"" : "\"{title}-kuvake\"",
+    "Use theme color" : "Käytä teeman väriä",
+    "Use text color" : "Käytä tekstin väriä",
+    "Use icons as-is" : "Käytä kuvakkeita sellaisinaan",
+    "Use custom color" : "Käytä mukautettua väriä",
+    "Failed to save external portal options" : "Piensovelluksen asetusten tallennus epäonnistui",
+    "No external sites." : "Ei ulkoisia sivustoja."
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}

@@ -1,36 +1,16 @@
-<!--
-Nextcloud - External Portal Dashboard
-@author Tuomas Nurmi
-@copyright 2022 Opinsys Oy <dev@opinsys.fi>
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-License as published by the Free Software Foundation; either
-version 3 of the License, or any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-You should have received a copy of the GNU Affero General Public
-License along with this library. If not, see <http://www.gnu.org/licenses/>.
-
-The Welcome widget ( https://github.com/julien-nc/welcome ) has been a very useful
-guiding source for basic dashboard widget and configuration functionality.
-
-SPDX-FileCopyrightText: Opinsys Oy <dev@opinsys.fi>
-SPDX-License-Identifier: AGPL-3.0-or-later
--->
-
 <template>
 	<div id="external-portal-widget">
 		<div v-if="loading" class="icon icon-loading" />
-		<span v-else-if="number > 0" class="external-sites">
+		<div v-else-if="content.length > 0" class="external-sites">
 			<div v-for="item in content"
 				:key="item.id"
-				:class="{ smaller: content.length>4 && content.length < 7, smallest: content.length>6, maxsized: maxSize, externalsite: true}">
-				<a v-bind="{ target: item.sameWindow ? '' : '_blank' }" :href="item.url">
+				:class="itemClasses">
+				<a :href="item.url"
+					:target="item.sameWindow ? '' : '_blank'"
+					:rel="item.sameWindow ? '' : 'noopener'">
 					<div v-if="themingColor !== undefined"
 						class="linkitem masked-icon"
-						:style="`-webkit-mask-image: url(${item.icon}); mask-image: url(${item.icon}); backgroundColor: ${themingColor}`" />
+						:style="`mask-image: url(${item.icon}); background-color: ${themingColor}`" />
 					<img v-else
 						class="linkitem"
 						preserveAspectRatio="xMinYMin meet"
@@ -40,35 +20,36 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					</span>
 				</a>
 			</div>
-		</span>
+		</div>
 		<div v-else>
-			<span>No external sites.<br>Home sweet home.</span>
+			<span>{{ t('externalportal', 'No external sites.') }}</span>
 		</div>
 	</div>
 </template>
 
-<script>
+<script lang="ts">
 
 import axios from '@nextcloud/axios'
 import { generateOcsUrl, generateUrl } from '@nextcloud/router'
 import { t, loadTranslations } from '@nextcloud/l10n'
 
+interface ExternalSite {
+	id?: number
+	name: string
+	url: string
+	icon: string
+	sameWindow?: boolean
+}
+
 export default {
 	name: 'Dashboard',
-	props: {
-		title: {
-			type: String,
-			required: true,
-		},
-	},
 	data() {
 		return {
 			loading: true,
-			number: 0,
-			content: [],
-			extraWide: false,
-			maxSize: false,
-			showFiles: false,
+			content: [] as ExternalSite[],
+			extraWide: '' as string | boolean,
+			maxSize: '' as string | boolean,
+			showFiles: '' as string | boolean,
 			iconColorMode: 'DEFAULT',
 			customIconColor: '',
 		}
@@ -77,78 +58,83 @@ export default {
 		themingColor() {
 			if (this.iconColorMode === 'CUSTOM') {
 				return this.customIconColor
-			} else if (!this.$OCA.Theming || this.iconColorMode === 'PRIMARY') {
+			} else if (!OCA.Theming || this.iconColorMode === 'PRIMARY') {
 				return 'var(--color-main-text)'
 			} else if (this.iconColorMode === 'THEMING') {
-				return this.$OCA.Theming.color
+				return OCA.Theming.color
 			} else {
 				return undefined
 			}
 		},
+		itemClasses() {
+			return {
+				externalsite: true,
+				smaller: this.content.length > 4 && this.content.length < 7,
+				smallest: this.content.length > 6,
+				maxsized: this.maxSize,
+			}
+		},
 	},
-	beforeMount() {
-		loadTranslations('files')
-		this.getConfig()
-		this.getContent()
-	},
-	mounted() {
+	async mounted() {
+		await loadTranslations('files')
+		await this.getConfig()
+		await this.getContent()
 	},
 	methods: {
+		t,
+		updateExtraWide() {
+			const panel = (this.$el as HTMLElement).closest('.panel')
+			if (!panel) return
+			if (this.content.length > 6 && this.extraWide) {
+				panel.classList.add('externalportal--extra-wide')
+			} else {
+				panel.classList.remove('externalportal--extra-wide')
+			}
+		},
 		async getConfig() {
 			const url = generateUrl('/apps/externalportal/config')
 			try {
 				const response = await axios.get(url)
-				console.debug('"' + JSON.stringify(response.data) + '"')
 				this.extraWide = response.data.extraWide
 				this.maxSize = response.data.maxSize
 				this.showFiles = response.data.showFiles
 				this.iconColorMode = response.data.iconColorMode
 				this.customIconColor = response.data.customIconColor
 			} catch (e) {
-				console.debug(e)
+				console.error(e)
 			}
 
 			if (this.showFiles) {
 				const filesUrl = generateUrl('/apps/files')
 				const filesIconUrl = generateUrl('../apps/files/img/app.svg')
 				const filesLabel = t('files', 'Files')
-				this.content = [{
+				this.content = ([{
 					icon: filesIconUrl,
 					url: filesUrl,
 					name: filesLabel,
 					sameWindow: true,
-				}].concat(this.content)
-				this.number = this.content.length
-			}
-			if (this.number > 6 && this.extraWide) {
-				document.getElementById('external-portal-widget').parentNode.parentNode.style.width = '400px'
+				}] as ExternalSite[]).concat(this.content)
 			}
 		},
 
 		async getContent() {
-			let url = generateOcsUrl('apps/external/api/v1', 2)
-			if (url.endsWith('/')) { // behaviour seems to have changed between 24 and 25
+			let url = generateOcsUrl('apps/external/api/v1')
+			if (url.endsWith('/')) {
 				url = url.slice(0, -1)
 			}
 			try {
 				const response = await axios.get(url)
 				this.content = this.content.concat(response.data.ocs.data)
-				this.number = this.content.length
-				console.debug('"' + JSON.stringify(response.data) + '"')
-				console.debug('"' + JSON.stringify(this.content) + '"')
 			} catch (error) {
-				console.debug(error)
+				console.error(error)
 			}
 			this.loading = false
-			if (this.number > 6 && this.extraWide) {
-				document.getElementById('external-portal-widget').parentNode.parentNode.style.width = '400px'
-			}
+			this.updateExtraWide()
 		},
 		async reload() {
 			this.loading = true
-			document.getElementById('external-portal-widget').parentNode.parentNode.style.width = '320px'
 			this.content = []
-			this.number = 0
+			this.updateExtraWide()
 			await loadTranslations('files')
 			await this.getConfig()
 			await this.getContent()
@@ -159,27 +145,31 @@ export default {
 
 <style scoped lang="scss">
 #external-portal-widget {
-	overflow-y: scroll;
+	overflow-x: hidden;
+	overflow-y: auto;
 	height: 100%;
 	text-align: center;
 
-	span.external-sites {
+	.external-sites {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-evenly;
+		overflow: hidden;
 	}
 
 	div.externalsite {
 		width: 48%;
-		height: 48%;
 		display: inline-block;
 		vertical-align: top;
 		padding-inline: 0.1rem;
+		box-sizing: border-box;
 
 		div.masked-icon, img {
-			padding: 0.5rem;
-			-webkit-filter: drop-shadow(5px 5px 5px #888);
 			filter: drop-shadow(5px 5px 5px #888);
+		}
+
+		img {
+			padding: 0.5rem;
 		}
 
 		div.masked-icon {
@@ -187,9 +177,6 @@ export default {
 			mask-size: 90%;
 			mask-position: center;
 			mask-repeat: no-repeat;
-			-webkit-mask-size: 90%;
-			-webkit-mask-position: center;
-			-webkit-mask-repeat: no-repeat;
 			aspect-ratio: 1;
 			box-sizing: border-box;
 			height: auto;
@@ -207,23 +194,25 @@ export default {
 
 	div.smaller {
 		width: 39%;
-		height: 39%;
 	}
 
 	div.smallest {
 		width: 30%;
-		height: 30%;
 	}
 
 	div.maxsized {
-		max-width: 64px;
-		max-height: 64px;
+		max-width: 80px;
 		margin: 0.5rem;
+
+		.linkitem {
+			max-width: 64px;
+			max-height: 64px;
+		}
 	}
 
 	.linkitem {
 		width: 95%;
-		height: 95%;
+		height: auto;
 		margin-top: 0.5rem;
 	}
 
@@ -233,5 +222,4 @@ export default {
 		box-shadow: 0px 0px 0.1em 0.1em #f5f5f582, inset 0 0 2em 1em #f5f5f582;
 	}
 }
-
 </style>
