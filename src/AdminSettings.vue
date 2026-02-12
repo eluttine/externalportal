@@ -1,25 +1,3 @@
-<!--
-Nextcloud - External Portal Dashboard
-@author Tuomas Nurmi
-@copyright 2022 Opinsys Oy <dev@opinsys.fi>
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE
-License as published by the Free Software Foundation; either
-version 3 of the License, or any later version.
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU AFFERO GENERAL PUBLIC LICENSE for more details.
-You should have received a copy of the GNU Affero General Public
-License along with this library. If not, see <http://www.gnu.org/licenses/>.
-
-The Welcome widget ( https://github.com/julien-nc/welcome ) has been a very useful
-guiding source for basic dashboard widget and configuration functionality.
-
-SPDX-FileCopyrightText: Opinsys Oy <dev@opinsys.fi>
-SPDX-License-Identifier: AGPL-3.0-or-later
--->
-
 <template>
 	<div id="externalportal_prefs" class="section">
 		<div class="settings">
@@ -67,8 +45,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</select>
 			</div>
 			<div v-if="state.iconColorMode === 'CUSTOM'" class="setting">
-				<ColorInputField label="Custom icon color"
-					:value.sync="state.customIconColor" />
+				<ColorInputField v-model="state.customIconColor"
+					label="Custom icon color" />
 			</div>
 			<div class="setting">
 				<button color="primary" @click="saveSettings">
@@ -103,6 +81,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script>
 import { loadState } from '@nextcloud/initial-state'
+import { translate as t } from '@nextcloud/l10n'
 import axios from '@nextcloud/axios'
 import { generateUrl } from '@nextcloud/router'
 import { showSuccess, showError } from '@nextcloud/dialogs'
@@ -123,6 +102,7 @@ export default {
 		}
 	},
 	methods: {
+		t,
 		async saveSettings() {
 			this.saving = true
 			const values = {
@@ -203,9 +183,9 @@ export default {
 	background-size: 32px;
 	width: 32px;
 	height: 32px;
-	margin-right: 16px;
+	margin-inline-end: 16px;
 	background-position: center;
-	float: left;
+	float: inline-start;
 }
 
 </style>
