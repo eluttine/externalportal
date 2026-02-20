@@ -1,0 +1,25 @@
+{ "translations": {
+    "External portal" : "Externe Seiten Portal",
+    "External Portal" : "Externe Seiten Portal",
+    "Dashboard Portal Widget" : "Dashboard-Portal-Widget",
+    "A dashboard widget that displays the content from the External sites app on Dashboard." : "Ein Dashboard-Widget, das die Inhalte der App „Externe Seiten\" auf dem Dashboard anzeigt.",
+    "External portal settings" : "Einstellungen für Externe Seiten Portal",
+    "Widget title" : "Widget-Titel",
+    "Extra wide" : "Extra breit",
+    "Expand the widget from 320px to 400px when there are more than 6 links" : "Das Widget von 320px auf 400px erweitern, wenn mehr als 6 Links vorhanden sind",
+    "Limit icon size" : "Symbolgröße begrenzen",
+    "Limit each icon to 64x64px to prevent small pixmap icons from being stretched" : "Jedes Symbol auf 64x64px begrenzen, damit kleine Pixmap-Symbole nicht gestreckt werden",
+    "Show Files link" : "Dateien-Link anzeigen",
+    "Add a shortcut to the Files app as the first item in the widget" : "Eine Verknüpfung zur Dateien-App als erstes Element im Widget hinzufügen",
+    "Icon Colors" : "Symbolfarben",
+    "Custom icon color" : "Benutzerdefinierte Symbolfarbe",
+    "Preview" : "Vorschau",
+    "\"{title} icon\"" : "\"{title}-Symbol\"",
+    "Use theme color" : "Designfarbe verwenden",
+    "Use text color" : "Textfarbe verwenden",
+    "Use icons as-is" : "Symbole unverändert verwenden",
+    "Use custom color" : "Benutzerdefinierte Farbe verwenden",
+    "Failed to save external portal options" : "Einstellungen für Externe Seiten Portal konnten nicht gespeichert werden",
+    "No external sites." : "Keine externen Seiten."
+},"pluralForm" :"nplurals=2; plural=(n != 1);"
+}
