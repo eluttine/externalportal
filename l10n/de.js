@@ -1,11 +1,11 @@
 OC.L10N.register(
     "externalportal",
     {
-    "External portal" : "Externes Portal",
-    "External Portal" : "Externes Portal",
+    "External portal" : "Externe Seiten Portal",
+    "External Portal" : "Externe Seiten Portal",
     "Dashboard Portal Widget" : "Dashboard-Portal-Widget",
     "A dashboard widget that displays the content from the External sites app on Dashboard." : "Ein Dashboard-Widget, das die Inhalte der App „Externe Seiten\" auf dem Dashboard anzeigt.",
-    "External portal settings" : "Einstellungen für externes Portal",
+    "External portal settings" : "Einstellungen für Externe Seiten Portal",
     "Widget title" : "Widget-Titel",
     "Extra wide" : "Extra breit",
     "Expand the widget from 320px to 400px when there are more than 6 links" : "Das Widget von 320px auf 400px erweitern, wenn mehr als 6 Links vorhanden sind",
@@ -21,7 +21,7 @@ OC.L10N.register(
     "Use text color" : "Textfarbe verwenden",
     "Use icons as-is" : "Symbole unverändert verwenden",
     "Use custom color" : "Benutzerdefinierte Farbe verwenden",
-    "Failed to save external portal options" : "Einstellungen für externes Portal konnten nicht gespeichert werden",
+    "Failed to save external portal options" : "Einstellungen für Externe Seiten Portal konnten nicht gespeichert werden",
     "No external sites." : "Keine externen Seiten."
 },
 "nplurals=2; plural=(n != 1);");

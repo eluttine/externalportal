@@ -21,11 +21,11 @@ msgstr ""
 #: src/AdminSettings.vue:60
 #: src/AdminSettings.vue:63
 msgid "External portal"
-msgstr "Externes Portal"
+msgstr "Externe Seiten Portal"
 
 #: appinfo/info.xml
 msgid "External Portal"
-msgstr "Externes Portal"
+msgstr "Externe Seiten Portal"
 
 #: appinfo/info.xml
 msgid "Dashboard Portal Widget"
@@ -37,7 +37,7 @@ msgstr "Ein Dashboard-Widget, das die Inhalte der App „Externe Seiten" auf dem
 
 #: src/AdminSettings.vue:3
 msgid "External portal settings"
-msgstr "Einstellungen für externes Portal"
+msgstr "Einstellungen für Externe Seiten Portal"
 
 #: src/AdminSettings.vue:8
 msgid "Widget title"
@@ -101,7 +101,7 @@ msgstr "Benutzerdefinierte Farbe verwenden"
 
 #: src/AdminSettings.vue:152
 msgid "Failed to save external portal options"
-msgstr "Einstellungen für externes Portal konnten nicht gespeichert werden"
+msgstr "Einstellungen für Externe Seiten Portal konnten nicht gespeichert werden"
 
 #: src/Dashboard.vue:25
 msgid "No external sites."
