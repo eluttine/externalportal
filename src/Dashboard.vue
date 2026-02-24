@@ -5,9 +5,9 @@
 			<div v-for="item in content"
 				:key="item.id"
 				:class="itemClasses">
-				<a :href="item.url"
-					:target="item.sameWindow ? '' : '_blank'"
-					:rel="item.sameWindow ? '' : 'noopener'">
+				<a :href="itemHref(item)"
+					:target="item.redirect ? '_blank' : ''"
+					:rel="item.redirect ? 'noopener' : ''">
 					<div v-if="themingColor !== undefined"
 						class="linkitem masked-icon"
 						:style="`mask-image: url(${item.icon}); background-color: ${themingColor}`" />
@@ -38,7 +38,7 @@ interface ExternalSite {
 	name: string
 	url: string
 	icon: string
-	sameWindow?: boolean
+	redirect?: number
 }
 
 export default {
@@ -91,6 +91,12 @@ export default {
 				panel.classList.remove('externalportal--extra-wide')
 			}
 		},
+		itemHref(item: ExternalSite) {
+			if (!item.redirect && item.id !== undefined) {
+				return generateUrl('/apps/external/{id}/', { id: item.id })
+			}
+			return item.url
+		},
 		async getConfig() {
 			const url = generateUrl('/apps/externalportal/config')
 			try {
@@ -112,7 +118,7 @@ export default {
 					icon: filesIconUrl,
 					url: filesUrl,
 					name: filesLabel,
-					sameWindow: true,
+					redirect: 0,
 				}] as ExternalSite[]).concat(this.content)
 			}
 		},
